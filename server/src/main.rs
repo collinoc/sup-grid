@@ -51,7 +51,7 @@ async fn handle_connection(grid: GridState, stream: TcpStream, addr: SocketAddr)
 
         match text.as_str() {
             "FLYNN_MODE" => {
-                let mut glock = grid.lock().expect("Failed to aquire grid lock");
+                let mut glock = grid.lock().expect("Failed to acquire grid lock");
                 glock.grid = Default::default();
                 eprintln!("Resetting board");
             }
@@ -60,7 +60,7 @@ async fn handle_connection(grid: GridState, stream: TcpStream, addr: SocketAddr)
                 let mut json = String::new();
 
                 {
-                    let glock = grid.lock().expect("Failed to aquire grid lock");
+                    let glock = grid.lock().expect("Failed to acquire grid lock");
 
                     let grid: &[[State; 10]; 10] = glock.grid.borrow();
 
@@ -104,9 +104,13 @@ async fn handle_connection(grid: GridState, stream: TcpStream, addr: SocketAddr)
                             }
                         }
 
-                        _ => {
+                        "WIN" => {
                             glock.grid[row][col].winner =
                                 val.parse::<bool>().expect("Failed to parse winner");
+                        }
+
+                        e => {
+                            eprintln!("Got unknown command {e}");
                         }
                     }
                 }
